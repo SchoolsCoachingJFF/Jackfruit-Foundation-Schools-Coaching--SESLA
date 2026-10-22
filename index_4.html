@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>School Coaching Visit | SESLA</title>
+<meta name="theme-color" content="#176b50">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Coaching Visit">
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 16px;
+    font-family: Arial, sans-serif;
+    background: #f3f7f4;
+    color: #24332b;
+  }
+
+  header {
+    max-width: 850px;
+    margin: 0 auto 16px;
+    padding: 20px 22px;
+    border-radius: 14px;
+    background: #176b50;
+    color: white;
+  }
+
+  header h1 { margin: 0 0 6px; font-size: 1.4em; }
+  header p { margin: 0; line-height: 1.5; font-size: 0.95em; }
+
+  main { max-width: 850px; margin: auto; }
+
+  #progressWrap {
+    max-width: 850px;
+    margin: 0 auto 14px;
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 12px 16px;
+    box-shadow: 0 3px 15px #163c2710;
+  }
+
+  #progressLabel {
+    font-size: 0.85em;
+    color: #58665d;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  #progressBar {
+    height: 8px;
+    border-radius: 5px;
+    background: #e2ece4;
+    overflow: hidden;
+  }
+  #progressFill {
+    height: 100%;
+    background: #176b50;
+    width: 0%;
+    transition: width .2s ease;
+  }
+
+  form, .panel {
+    padding: 22px;
+    margin-bottom: 18px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 3px 15px #163c2710;
+  }
+
+  h2 { color: #176b50; margin-top: 0; font-size: 1.2em; }
+  .section-intro { color: #58665d; font-size: 0.9em; margin-top: -8px; margin-bottom: 16px; }
+
+  .field { margin-bottom: 18px; }
+
+  label.qlabel {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    line-height: 1.4;
+  }
+  .hint { font-weight: normal; color: #58665d; font-size: 0.85em; display: block; margin-top: 2px; }
+
+  input[type=text], input[type=number], input[type=date], textarea, select {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid #cbd6ce;
+    border-radius: 7px;
+    background: white;
+    font: inherit;
+  }
+  textarea { min-height: 90px; resize: vertical; }
+  input:focus, select:focus, textarea:focus {
+    outline: 2px solid #80bba0;
+    border-color: #176b50;
+  }
+
+  .choice-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .choice-row label {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid #cbd6ce;
+    border-radius: 7px;
+    padding: 10px 12px;
+    cursor: pointer;
+    font-weight: normal;
+    background: #fafdfb;
+  }
+  .choice-row label.checked {
+    border-color: #176b50;
+    background: #e8f3ec;
+    font-weight: bold;
+  }
+  .choice-row input { width: auto; margin: 0; }
+
+  .checkbox-list label {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 2px;
+    cursor: pointer;
+    font-weight: normal;
+  }
+  .checkbox-list input { width: auto; }
+
+  .required-mark { color: #b42318; }
+
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  button {
+    padding: 13px 22px;
+    border: 0;
+    border-radius: 7px;
+    background: #176b50;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  button.secondary { background: #e2ece4; color: #176b50; }
+  button:disabled { opacity: .6; cursor: wait; }
+
+  .note { color: #58665d; font-size: 14px; line-height: 1.5; }
+  #message { margin-top: 16px; font-weight: bold; }
+  .error-text { color: #b42318; font-size: 0.85em; margin-top: 6px; display: none; }
+  .field.has-error input, .field.has-error textarea, .field.has-error select { border-color: #b42318; }
+  .field.has-error .error-text { display: block; }
+
+  .action-card {
+    border: 1px solid #e2ece4;
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 16px;
+    background: #fafdfb;
+  }
+  .action-card h3 { margin: 0 0 12px; color: #176b50; font-size: 1.05em; }
+
+  .skip-banner {
+    background: #fff6e6;
+    border: 1px solid #f0d9a6;
+    color: #7a5b16;
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 0.9em;
+  }
+
+  .draft-banner {
+    max-width: 850px;
+    margin: 0 auto 14px;
+    background: #fff6e6;
+    border: 1px solid #f0d9a6;
+    color: #7a5b16;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 0.9em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .draft-banner button { padding: 8px 14px; font-size: 14px; }
+
+  @media (max-width: 600px) {
+    body { padding: 10px; }
+    header, form, .panel { padding: 16px; }
+    .nav-row { flex-direction: column-reverse; }
+    .nav-row button { width: 100%; }
+  }
+</style>
+</head>
+<body>
+  <header>
+    <h1>School Coaching Visit</h1>
+    <p>Jackfruit Foundation | SESLA</p>
+    <p>Work through the sections in order. Answer from records you have seen and practice you have observed. Never write children's names.</p>
+  </header>
+
+  <div id="draftBanner" class="draft-banner" style="display:none;">
+    <span>A saved draft from an earlier visit was found on this device.</span>
+    <span>
+      <button type="button" id="resumeDraftBtn">Resume draft</button>
+      <button type="button" class="secondary" id="discardDraftBtn">Start new</button>
+    </span>
+  </div>
+
+  <div id="progressWrap">
+    <div id="progressLabel"><span id="progressText">Section 1 of 18</span><span id="progressTitle"></span></div>
+    <div id="progressBar"><div id="progressFill"></div></div>
+  </div>
+
+  <main>
+    <form id="visitForm" novalidate>
+      <div id="sectionHost"></div>
+      <div id="message" role="status" aria-live="polite"></div>
+      <div class="nav-row">
+        <button type="button" id="backBtn" class="secondary">Back</button>
+        <button type="button" id="nextBtn">Next</button>
+        <button type="submit" id="submitBtn" style="display:none;">Submit Visit</button>
+      </div>
+    </form>
+
+    <section class="panel">
+      <h2>About your records</h2>
+      <p class="note">
+        Visit submissions are sent to the connected Google Sheet. After submitting, check the
+        spreadsheet to confirm the record arrived. Your answers are also saved as a draft on this
+        device as you go, in case you lose signal or the page closes &mdash; nothing is shared
+        until you press Submit.
+      </p>
+    </section>
+  </main>
+
+<script>
+/* ---------- Field builders ---------- */
+function text(key, label, required, hint){ return {key,label,type:'text',required:!!required,hint}; }
+function ta(key, label, required, hint){ return {key,label,type:'textarea',required:!!required,hint}; }
+function num(key, label, required, hint){ return {key,label,type:'number',required:!!required,hint}; }
+function dt(key, label, required, hint){ return {key,label,type:'date',required:!!required,hint}; }
+function radio(key, label, options, required, hint){ return {key,label,type:'radio',options,required:!!required,hint}; }
+function radioOther(key, label, options, required, hint){ return {key,label,type:'radioOther',options,required:!!required,hint}; }
+function check(key, label, options, required, hint){ return {key,label,type:'checkbox',options,required:!!required,hint}; }
+
+var YPN = ['Yes','Partly','No'];
+var YN = ['Yes','No'];
+var RATING = ['Established','In progress','Needs support','Urgent'];
+
+function supportField(hint){
+  return ta('support', 'What did you do to support the school?', true, hint);
+}
+
+/* ---------- Section data, built from the Facilitator Handout Question Flow ---------- */
+var SECTIONS = [
+  {
+    id:'s1', title:'Section 1: School and visit details', skippable:false,
+    fields:[
+      radio('facilitatorName','Facilitator name', ['Beatrice Ngoche','Charles Ndegwa','Fridah Anjeche','Joseph Omondi'], true),
+      text('schoolNameLocation',"School name or code, and location", true),
+      text('directorName',"Director's name", true),
+      dt('visitDate','Date of visit', true)
+    ]
+  },
+  {
+    id:'s2', title:'Section 2: Baseline comparison', skippable:false,
+    fields:[
+      ta('baselineFinding','Main baseline finding you followed up'),
+      ta('whatChanged','What has changed since the baseline?'),
+      radio('overallProgress','Overall progress', ['Significant','Some','Little','None or worse']),
+      check('mainBarriers',"Main barriers the director reported", ['Knowledge','Time','Money','Staff capacity','No tool or template','No clear procedure']),
+      ta('directorNeedsHelp','What does the director say they most need help with?')
+    ]
+  },
+  {
+    id:'s3', title:'Section 3: Child safeguarding and protection', skippable:true,
+    fields:[
+      radio('policyExists','Does a written safeguarding policy exist?', YPN),
+      radio('focalPerson','Safeguarding focal person named? (role only)', YPN),
+      radio('staffKnow','Staff know conduct, boundaries and the reporting procedure?', YPN),
+      radio('attendanceRecords','Attendance, authorised collection and visitor records kept?', YPN),
+      radio('safetySupervised','Toilets, playground, classrooms, entrances and kitchen safe and supervised?', YPN),
+      radio('confidentialChannel','Confidential way to raise concerns?', YPN),
+      check('evidenceSeen','Evidence seen', ['Policy or drafting plan','Named focal person','Reporting procedure','Staff briefing records','Hazard list with corrective actions']),
+      radio('progressRating','Progress rating', RATING),
+      supportField('For example: drafted the policy, code of conduct, incident register, drop-off and collection procedure, supervision rota.')
+    ]
+  },
+  {
+    id:'s4', title:'Section 4: School environment safety, structures and facilities', skippable:true,
+    fields:[
+      radio('structuralHazards','Serious structural hazards? (cracks, damaged floors, unsafe stairs, exposed wiring)', YN),
+      radio('furnitureCondition','Desks, chairs, shelves, fences, gates and play equipment in safe condition?', YPN),
+      radio('toiletsHandwashing','Toilets and handwashing clean and usable?', YPN),
+      radio('kitchenHygiene','Kitchen hygiene, ventilation, food storage, water and fire safety?', YPN),
+      radio('safeMovement','Safe movement around the compound?', YPN),
+      radio('firstAid','First-aid supplies and emergency contacts available?', YPN),
+      radio('classroomAdequate','Classroom ventilation, lighting, furniture and materials adequate?', YPN),
+      ta('immediateHazards','Immediate hazards found'),
+      ta('urgentRepairs','Urgent repairs needed'),
+      ta('longerTermImprovements','Longer-term improvements'),
+      check('evidenceSeen','Evidence seen', ['Safety checklist','Maintenance register','Repair estimates','Improvement plan']),
+      radio('progressRating','Progress rating', RATING),
+      supportField('For example: walk-through audit, maintenance register, phased budget, reading corner before library plan.')
+    ]
+  },
+  {
+    id:'s5', title:'Section 5: Financial management and profitability', skippable:true,
+    fields:[
+      check('recordsSeen','Records seen (tick only those you saw)', ['Budget','Fee register','Receipt book','Cashbook','Petty cash records','Bank or mobile-money reconciliation','Payroll','Procurement records','Monthly summary','Debts and supplier balances']),
+      radio('cashbookUpToDate','Cashbook up to date?', YPN),
+      radio('moneySeparate','School money kept separate from personal money?', YPN),
+      radio('operatingPosition','Operating position for the latest month', ['Surplus','Break-even','Deficit','Could not determine']),
+      radio('progressRating','Progress rating', RATING),
+      supportField('For example: set up the cashbook, recorded a live transaction, reconciled fees, built a monthly budget; did the director then record one alone?')
+    ]
+  },
+  {
+    id:'s6', title:'Section 6: School fees, parents and fee payment', skippable:true,
+    fields:[
+      num('learnersEnrolled','Learners enrolled last term'),
+      num('learnersClearedFees','Learners who cleared fees'),
+      num('learnersOutstanding','Learners with outstanding balances'),
+      num('feesBilled','Total fees billed (KSh)'),
+      num('feesCollected','Total fees collected (KSh)'),
+      num('feesOutstanding','Total outstanding fees (KSh)'),
+      radio('followUpRespectful','Does the school follow up respectfully and consistently?', YPN),
+      check('nonPaymentReasons','Main reasons for non-payment, as the director understands them', ['Irregular income','Seasonal work','Job loss','Illness or emergency','Unclear fee arrangements','Poor communication']),
+      radio('instalmentArrangement','Instalment arrangement for families in genuine difficulty?', YPN),
+      radio('progressRating','Progress rating', RATING),
+      supportField('For example: fee collection summary, confidential follow-up register, communication schedule.')
+    ]
+  },
+  {
+    id:'s7', title:'Section 7: Teacher recruitment, management and motivation', skippable:true,
+    fields:[
+      radio('jobDescriptions','Written job descriptions?', YPN),
+      radio('recruitmentCriteria','Documented recruitment criteria and interview process?', YPN),
+      radio('qualificationsVerified','Qualifications and references verified?', YPN),
+      radio('employmentTerms','Employment terms documented?', YPN),
+      radio('attendanceRecorded','Teacher attendance and punctuality recorded?', YPN),
+      radio('meetingsReviews','Staff meetings and performance reviews held?', YPN),
+      radio('teachersSupported','Teachers supported with lesson planning and professional development?', YPN),
+      radio('safeguardingChecks','Safeguarding checks included in recruitment?', YPN),
+      check('evidenceSeen','Evidence seen', ['Recruitment checklist','Staff files','Attendance register','Meeting minutes','Performance targets','Teacher support plan']),
+      radio('progressRating','Progress rating', RATING),
+      supportField('For example: interview scorecard, attendance register, monthly review, motivation plan.')
+    ]
+  },
+  {
+    id:'s8', title:'Section 8: Classroom appearance, management and learning', skippable:true,
+    fields:[
+      num('classroomsObserved','Number of classrooms observed'),
+      radio('furnitureSuits',"Furniture suits children's age and size?", YPN),
+      radio('childrenMoveSafely','Children can move safely?', YPN),
+      radio('materialsAvailable','Learning materials available and organised?', YPN),
+      radio('cleanLitVentilated','Clean, well lit and ventilated?', YPN),
+      radio('displaysUsed','Displays used meaningfully?', YPN),
+      radio('positiveBehaviour','Positive behaviour guidance observed (no humiliating discipline)?', YPN),
+      radio('routinesParticipation','Clear routines, and children actively participating?', YPN),
+      radio('progressRating','Progress rating', RATING),
+      supportField("For example: which teacher's classroom or learning corner you reorganised (by role only), and what changed.")
+    ]
+  },
+  {
+    id:'s9', title:'Section 9: School feeding, menus and kitchen management', skippable:true,
+    fields:[
+      radio('writtenMenu','Written weekly or termly menu?', YPN),
+      radio('portionsVaried','Portions suit the age group, and meals varied?', YPN),
+      radio('safeWater','Safe drinking water available?', YPN),
+      radio('foodHygiene','Food stored, prepared and served hygienically?', YPN),
+      radio('purchasesRecorded','Purchases recorded and stock monitored?', YPN),
+      radio('allergiesManaged','Allergies and medical needs managed?', YPN),
+      num('foodCostPerChild','Estimated food cost per child per day (KSh)'),
+      radio('progressRating','Progress rating', RATING),
+      supportField('For example: weekly menu, ingredient quantities and costs, stock register, meal-cost calculation.')
+    ]
+  },
+  {
+    id:'s10', title:'Section 10: Community engagement, branding and enrolment growth', skippable:true,
+    fields:[
+      radio('parentCommittee','Active parent committee or feedback mechanism?', YPN),
+      radio('regularMeetings','Regular parent meetings with minutes?', YPN),
+      radio('clearCommunication','Clear communication on fees, progress and activities?', YPN),
+      radio('signposted','School signposted and identifiable, compound welcoming?', YPN),
+      radio('knowsWhyParentsChoose','Does the school know why parents choose it and why some leave?', YPN),
+      radio('planAttractLearners','Plan to attract new learners next term?', YPN),
+      num('expectedNewLearners','Expected new learners next term'),
+      ta('outreachActivities','Outreach activities agreed before next term (two or three)'),
+      check('evidenceSeen','Evidence seen', ['Stakeholder map','Outreach calendar','Parent feedback tool','Enrolment tracker','Beautification plan']),
+      radio('progressRating','Progress rating', RATING),
+      supportField('For example: outreach calendar, enrolment tracker, signboard and compound review.')
+    ]
+  },
+  {
+    id:'s11', title:'Section 11: Parent engagement and community feedback', skippable:true,
+    fields:[
+      radio('meetingSchedule','Parent meeting schedule in place?', YPN),
+      radio('feedbackChannel','Accessible feedback channel (suggestion box or other)?', YPN),
+      radio('feedbackProcess','Process to record, respond to and close feedback?', YPN),
+      ta('parentsAppreciate','What does the director say parents appreciate?'),
+      ta('concernsAffecting','What concerns affect the parent relationship?'),
+      ta('whatCouldChange',"What could the school change to improve children's experience?"),
+      radio('progressRating','Progress rating', RATING),
+      supportField('For example: meeting schedule, feedback log, shared the Parent Feedback Form.')
+    ]
+  },
+  {
+    id:'s12', title:'Section 12: Partnerships and resource mobilisation', skippable:true,
+    fields:[
+      radio('knowsCollaborators','Knows other schools or organisations to collaborate with?', YPN),
+      radio('localOrgsIdentified','Local CBOs, NGOs, faith groups, businesses or public services identified?', YPN),
+      radio('clearProposal','Clear proposal for the resources needed?', YPN),
+      radio('partnershipsDocumented','Existing partnerships documented and followed up?', YPN),
+      radioOther('priorityProject','Priority project', ['Library','Kitchen','Toilet block','Classroom','Other']),
+      radio('loanConsidered','Is a loan being considered? If yes, did you discuss affordability, repayment and total cost?', ['Yes','No','Not applicable']),
+      check('noPromise','Confirmation', ['I made no promise of funding, loans or approvals']),
+      radio('progressRating','Progress rating', RATING),
+      supportField('For example: stakeholder map, one-page concept note, cost estimate, introductions.')
+    ]
+  },
+  {
+    id:'s13', title:'Section 13: School operational management and administration', skippable:true,
+    fields:[
+      check('recordsSeen','Records seen', ['Admission and enrolment','Learner attendance','Staff attendance','Timetables','Emergency contacts (stored securely)','Inventory','Duty rosters','Meeting minutes and improvement plan','Emergency procedures and licences']),
+      radio('filingSystem','Filing system in place?', YPN),
+      radio('monthlyReview','Monthly management review in place?', YPN),
+      radio('progressRating','Progress rating', RATING),
+      supportField('For example: admin checklist, filing system, assigned owners for records.')
+    ]
+  },
+  {
+    id:'s14', title:'Section 14: Immediate concerns', skippable:false,
+    fields:[
+      radio('urgentRisk','Any urgent safeguarding, structural, health or safety risk?', YN, true),
+      ta('riskDescription','If yes: describe the risk and the action or referral made (no children\'s names)'),
+      text('escalatedTo','Who did you escalate to, and when?')
+    ]
+  },
+  {
+    id:'s15', title:'Section 15: School action plan (three to five actions)', skippable:false, repeatActions:true,
+    intro:'Repeat these five questions for each action. Actions 1 to 3 are required; actions 4 and 5 are optional.'
+  },
+  {
+    id:'s16', title:'Section 16: Support needed and follow-up', skippable:false,
+    fields:[
+      check('supportNeeded','Support the school still needs', ['Technical assessment','Safeguarding referral','School financing referral','Templates','Management decision','Another visit','None']),
+      ta('supportDetails','Details of support needed'),
+      dt('checkDate','Date to check progress'),
+      radio('followUpMethod','Follow-up method', ['Phone call','Remote review of records','Another visit'])
+    ]
+  },
+  {
+    id:'s17', title:'Section 17: Wrap-up', skippable:false,
+    fields:[
+      ta('usefulThing','The single most useful thing left behind at this school'),
+      ta('directorCommitment',"The director's main commitment after the visit"),
+      ta('teamLearning','Anything the programme team should know or learn from this visit'),
+      radio('timeSpent','Time spent at the school', ['Under 2 hrs','2–3 hrs','3–4 hrs','Over 4 hrs'], true),
+      check('participants','Who took part in the visit', ['Director','Administrator','Teachers','Support staff','Parent committee member'])
+    ]
+  },
+  {
+    id:'sign', title:'Sign-off', skippable:false,
+    fields:[
+      text('facilitatorSignature','Facilitator name (typed as signature)'),
+      text('directorSignature','Director name (typed as signature)'),
+      dt('signDate','Date')
+    ]
+  }
+];
+
+var ACTION_KEYS = ['gap','action','responsible','deadline','evidence'];
+function actionFields(n, required){
+  return [
+    text('a'+n+'_gap', 'Identified gap', required),
+    ta('a'+n+'_action', 'Agreed action', required),
+    text('a'+n+'_responsible', 'Responsible person', required),
+    dt('a'+n+'_deadline', 'Deadline', required),
+    text('a'+n+'_evidence', 'Evidence of completion')
+  ];
+}
+
+/* ---------- State ---------- */
+var data = {};
+var current = 0;
+var STORAGE_KEY = 'sesla_coaching_visit_draft_v1';
+
+function fieldsForSection(sec){
+  if (sec.repeatActions){
+    var out = [];
+    for (var n=1;n<=5;n++){ out = out.concat(actionFields(n, n<=3)); }
+    return out;
+  }
+  var out2 = sec.fields.slice();
+  if (sec.skippable){
+    out2 = [radio('covered','Did you cover this area in this visit?', ['Yes','No'], true)].concat(out2);
+  }
+  return out2;
+}
+
+function isSectionSkipped(sec){
+  return sec.skippable && data[sec.id+'_covered'] === 'No';
+}
+
+/* ---------- Rendering ---------- */
+var host = document.getElementById('sectionHost');
+
+function renderSection(){
+  var sec = SECTIONS[current];
+  var fields = fieldsForSection(sec);
+  var html = '<h2>'+sec.title+'</h2>';
+  if (sec.intro) html += '<p class="section-intro">'+sec.intro+'</p>';
+
+  var skipActive = sec.skippable && data[sec.id+'_covered'] === 'No';
+  if (skipActive){
+    html += '<div class="skip-banner">Marked as not covered in this visit — the rest of this section is skipped. Press Next to continue.</div>';
+  }
+
+  if (sec.repeatActions){
+    for (var n=1;n<=5;n++){
+      var actFields = actionFields(n, n<=3);
+      html += '<div class="action-card"><h3>Action '+n+(n<=3 ? ' (required)' : ' (optional)')+'</h3>';
+      actFields.forEach(function(f){ html += renderField(sec.id, f); });
+      html += '</div>';
+    }
+  } else {
+    fields.forEach(function(f, idx){
+      if (skipActive && f.key !== 'covered') return;
+      if (sec.id === 's14' && f.key !== 'urgentRisk' && data['s14_urgentRisk'] !== 'Yes') return;
+      html += renderField(sec.id, f);
+    });
+  }
+
+  host.innerHTML = html;
+  bindFieldEvents(sec, fields);
+  restoreValues(sec, fields);
+  updateProgress();
+
+  document.getElementById('backBtn').style.display = (current === 0) ? 'none' : 'inline-block';
+  var isLast = current === SECTIONS.length - 1;
+  document.getElementById('nextBtn').style.display = isLast ? 'none' : 'inline-block';
+  document.getElementById('submitBtn').style.display = isLast ? 'inline-block' : 'none';
+  window.scrollTo(0,0);
+}
+
+function renderField(secId, f){
+  var fid = secId+'_'+f.key;
+  var reqMark = f.required ? ' <span class="required-mark">*</span>' : '';
+  var hint = f.hint ? '<span class="hint">'+f.hint+'</span>' : '';
+  var body = '';
+
+  if (f.type === 'text' || f.type === 'number' || f.type === 'date'){
+    var itype = f.type === 'text' ? 'text' : f.type;
+    body = '<input type="'+itype+'" id="'+fid+'" name="'+fid+'" data-key="'+fid+'">';
+  } else if (f.type === 'textarea'){
+    body = '<textarea id="'+fid+'" name="'+fid+'" data-key="'+fid+'"></textarea>';
+  } else if (f.type === 'radio' || f.type === 'radioOther'){
+    body = '<div class="choice-row" data-key="'+fid+'">';
+    f.options.forEach(function(opt, i){
+      var oid = fid+'_'+i;
+      body += '<label for="'+oid+'"><input type="radio" id="'+oid+'" name="'+fid+'" value="'+opt+'">'+opt+'</label>';
+    });
+    body += '</div>';
+    if (f.type === 'radioOther'){
+      body += '<div style="margin-top:8px;"><input type="text" placeholder="Please specify" id="'+fid+'_otherText" name="'+fid+'_otherText" style="display:none;"></div>';
+    }
+  } else if (f.type === 'checkbox'){
+    body = '<div class="checkbox-list" data-key="'+fid+'">';
+    f.options.forEach(function(opt, i){
+      var oid = fid+'_'+i;
+      body += '<label for="'+oid+'"><input type="checkbox" id="'+oid+'" name="'+fid+'" value="'+opt+'">'+opt+'</label>';
+    });
+    body += '</div>';
+  }
+
+  return '<div class="field" id="field_'+fid+'" data-fieldkey="'+fid+'" data-required="'+(!!f.required)+'" data-type="'+f.type+'">' +
+    '<label class="qlabel" for="'+fid+'">'+escapeHtml(f.label)+reqMark+hint+'</label>' +
+    body +
+    '<div class="error-text">This field is required.</div>' +
+  '</div>';
+}
+
+function escapeHtml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function bindFieldEvents(sec, fields){
+  host.querySelectorAll('input, textarea').forEach(function(el){
+    el.addEventListener('input', onFieldChange);
+    el.addEventListener('change', onFieldChange);
+  });
+}
+
+function onFieldChange(e){
+  var el = e.target;
+  var container = el.closest('.field');
+  if (!container) return;
+  var fid = container.getAttribute('data-fieldkey');
+  var type = container.getAttribute('data-type');
+
+  if (type === 'radio' || type === 'radioOther'){
+    var checked = container.querySelector('input[name="'+el.name+'"]:checked');
+    data[fid] = checked ? checked.value : '';
+    container.querySelectorAll('.choice-row label').forEach(function(l){ l.classList.remove('checked'); });
+    if (checked) checked.closest('label').classList.add('checked');
+    if (type === 'radioOther'){
+      var otherInput = document.getElementById(fid+'_otherText');
+      if (otherInput){
+        otherInput.style.display = (data[fid] === 'Other') ? 'block' : 'none';
+      }
+    }
+    if (fid.indexOf('_covered') !== -1 || fid === 's14_urgentRisk'){
+      saveDraft();
+      renderSection();
+      return;
+    }
+  } else if (type === 'checkbox'){
+    var vals = [];
+    container.querySelectorAll('input[type=checkbox]:checked').forEach(function(c){ vals.push(c.value); });
+    data[fid] = vals;
+  } else {
+    data[fid] = el.value;
+  }
+
+  if (el.id && el.id.indexOf('_otherText') !== -1){
+    data[fid+'_otherText'] = el.value;
+  }
+
+  clearError(container);
+  saveDraft();
+}
+
+function restoreValues(sec, fields){
+  fields.forEach(function(f){
+    var fid = sec.id+'_'+f.key;
+    var val = data[fid];
+    if (val === undefined) return;
+    if (f.type === 'radio' || f.type === 'radioOther'){
+      var el = host.querySelector('input[name="'+fid+'"][value="'+CSS.escape(val)+'"]');
+      if (el){ el.checked = true; el.closest('label').classList.add('checked'); }
+      if (f.type === 'radioOther' && val === 'Other'){
+        var ot = document.getElementById(fid+'_otherText');
+        if (ot){ ot.style.display = 'block'; ot.value = data[fid+'_otherText'] || ''; }
+      }
+    } else if (f.type === 'checkbox'){
+      (val||[]).forEach(function(v){
+        var el = host.querySelector('input[name="'+fid+'"][value="'+CSS.escape(v)+'"]');
+        if (el) el.checked = true;
+      });
+    } else {
+      var inp = document.getElementById(fid);
+      if (inp) inp.value = val;
+    }
+  });
+}
+
+function clearError(container){ container.classList.remove('has-error'); }
+
+/* ---------- Validation & navigation ---------- */
+function validateCurrentSection(){
+  var sec = SECTIONS[current];
+  var fields = fieldsForSection(sec);
+  var skipActive = sec.skippable && data[sec.id+'_covered'] === 'No';
+  var ok = true;
+  var firstError = null;
+
+  fields.forEach(function(f){
+    if (skipActive && f.key !== 'covered') return;
+    if (sec.id === 's14' && f.key !== 'urgentRisk' && data['s14_urgentRisk'] !== 'Yes') return;
+    var required = f.required;
+    if (sec.id === 's14' && (f.key === 'riskDescription' || f.key === 'escalatedTo') && data['s14_urgentRisk'] === 'Yes'){
+      required = true;
+    }
+    if (!required) return;
+    var fid = sec.id+'_'+f.key;
+    var val = data[fid];
+    var empty = (val === undefined || val === '' || (Array.isArray(val) && val.length === 0));
+    var container = document.getElementById('field_'+fid);
+    if (empty){
+      ok = false;
+      if (container){ container.classList.add('has-error'); if (!firstError) firstError = container; }
+    } else if (container){
+      container.classList.remove('has-error');
+    }
+  });
+
+  if (!ok && firstError){ firstError.scrollIntoView({behavior:'smooth', block:'center'}); }
+  return ok;
+}
+
+function updateProgress(){
+  var total = SECTIONS.length;
+  document.getElementById('progressText').textContent = 'Section '+(current+1)+' of '+total;
+  document.getElementById('progressTitle').textContent = Math.round(((current+1)/total)*100)+'%';
+  document.getElementById('progressFill').style.width = (((current+1)/total)*100)+'%';
+}
+
+document.getElementById('nextBtn').addEventListener('click', function(){
+  if (!validateCurrentSection()) return;
+  if (current < SECTIONS.length - 1){ current++; renderSection(); saveDraft(); }
+});
+document.getElementById('backBtn').addEventListener('click', function(){
+  if (current > 0){ current--; renderSection(); }
+});
+
+/* ---------- Draft autosave (this device only; cleared after a successful send) ---------- */
+function saveDraft(){
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({data:data, current:current, savedAt: new Date().toISOString()}));
+  } catch(e) { /* storage unavailable - continue without autosave */ }
+}
+function loadDraft(){
+  try {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch(e){ return null; }
+}
+function clearDraft(){
+  try { localStorage.removeItem(STORAGE_KEY); } catch(e){}
+}
+
+var draft = loadDraft();
+if (draft && draft.data && Object.keys(draft.data).length){
+  document.getElementById('draftBanner').style.display = 'flex';
+}
+document.getElementById('resumeDraftBtn').addEventListener('click', function(){
+  data = draft.data || {};
+  current = draft.current || 0;
+  document.getElementById('draftBanner').style.display = 'none';
+  renderSection();
+});
+document.getElementById('discardDraftBtn').addEventListener('click', function(){
+  clearDraft();
+  document.getElementById('draftBanner').style.display = 'none';
+});
+
+/* ---------- Submission ---------- */
+// Paste your deployed Google Apps Script web app URL below.
+var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzx3hlGjhHsyUL-aFooFvcT6BAo6IZ884LPwNdY7WDAPqIeEa_1l7daN9zlthJgHPs/exec";
+
+document.getElementById('visitForm').addEventListener('submit', async function(event){
+  event.preventDefault();
+  if (!validateCurrentSection()) return;
+
+  var button = document.getElementById('submitBtn');
+  var message = document.getElementById('message');
+
+  if (SCRIPT_URL.indexOf('https://script.google.com/') !== 0){
+    message.textContent = 'The form is ready, but the Google Sheets connection has not been configured yet.';
+    return;
+  }
+
+  button.disabled = true;
+  message.textContent = 'Sending visit details...';
+
+  try {
+    var payload = new URLSearchParams();
+    payload.append('submittedAt', new Date().toISOString());
+    Object.keys(data).forEach(function(k){
+      var v = data[k];
+      if (Array.isArray(v)) v = v.join('; ');
+      payload.append(k, v === undefined || v === null ? '' : v);
+    });
+
+    await fetch(SCRIPT_URL, { method:'POST', body: payload, mode:'no-cors' });
+
+    message.textContent = 'Submission sent. Please check your Google Sheet to confirm it was saved.';
+    clearDraft();
+    data = {};
+    current = 0;
+    renderSection();
+  } catch (err){
+    message.textContent = 'Unable to send the form. Check your internet connection and try again — your answers are still saved as a draft on this device.';
+  } finally {
+    button.disabled = false;
+  }
+});
+
+/* ---------- Init ---------- */
+renderSection();
+
+/* ---------- Install to home screen (basic PWA support) ---------- */
+if ('serviceWorker' in navigator){
+  // Intentionally no service worker registered: the form must always load fresh
+  // over the network so facilitators always get the latest question set.
+}
+</script>
+</body>
+</html>
