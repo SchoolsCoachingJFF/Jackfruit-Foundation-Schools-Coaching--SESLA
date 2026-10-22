@@ -1,247 +1,65 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>School Coaching Visit | SESLA</title>
-  <style>
-    * { box-sizing: border-box; }
+/**
+ * School Coaching Visit survey -> Google Sheet backend.
+ *
+ * Setup (one-time):
+ * 1. Open the Google Sheet "Jackfruit Foundation School Coaching visits (Oct/Nov 2026)".
+ * 2. Extensions > Apps Script.
+ * 3. Delete any placeholder code and paste this whole file in.
+ * 4. Click Deploy > New deployment.
+ *    - Select type: Web app.
+ *    - Description: anything, e.g. "Coaching visit intake".
+ *    - Execute as: Me.
+ *    - Who has access: Anyone.
+ * 5. Click Deploy, authorize when Google asks (this is your own script, acting on
+ *    your own sheet, so the "unverified app" warning is expected - click
+ *    Advanced > Go to [project name] (unsafe) > Allow).
+ * 6. Copy the Web app URL it gives you (ends in /exec).
+ * 7. Paste that URL into SCRIPT_URL near the bottom of index.html, replacing
+ *    PASTE_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE.
+ *
+ * If you later add a question to the form, add the same field key as a new
+ * column header in row 1 of the sheet - this script writes by matching header
+ * names, so no code change is needed for a new column, as long as the header
+ * text matches the form field's name attribute exactly.
+ */
 
-    body {
-      margin: 0;
-      padding: 20px;
-      font-family: Arial, sans-serif;
-      background: #f3f7f4;
-      color: #24332b;
-    }
+var SHEET_NAME = 'Sheet1';
 
-    header {
-      max-width: 850px;
-      margin: 0 auto 22px;
-      padding: 25px;
-      border-radius: 14px;
-      background: #176b50;
-      color: white;
-    }
+function doPost(e) {
+  var lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+    var lastCol = Math.max(sheet.getLastColumn(), 1);
+    var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
 
-    header h1 { margin: 0 0 8px; }
-    header p { margin: 0; line-height: 1.5; }
+    var params = (e && e.parameter) ? e.parameter : {};
 
-    main {
-      max-width: 850px;
-      margin: auto;
-    }
-
-    form, .saved-panel {
-      padding: 24px;
-      margin-bottom: 20px;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 3px 15px #163c2710;
-    }
-
-    h2 { color: #176b50; margin-top: 0; }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 18px;
-    }
-
-    .field { margin-bottom: 18px; }
-    .full { grid-column: 1 / -1; }
-
-    label {
-      display: block;
-      margin-bottom: 7px;
-      font-weight: bold;
-    }
-
-    input, select, textarea {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #cbd6ce;
-      border-radius: 7px;
-      background: white;
-      font: inherit;
-    }
-
-    textarea { min-height: 100px; resize: vertical; }
-    input:focus, select:focus, textarea:focus {
-      outline: 2px solid #80bba0;
-      border-color: #176b50;
-    }
-
-    button {
-      padding: 13px 20px;
-      border: 0;
-      border-radius: 7px;
-      background: #176b50;
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    button:disabled { opacity: .6; cursor: wait; }
-
-    .note { color: #58665d; font-size: 14px; line-height: 1.5; }
-    #message { margin-top: 16px; font-weight: bold; }
-    .required { color: #b42318; }
-
-    @media (max-width: 600px) {
-      body { padding: 12px; }
-      header, form, .saved-panel { padding: 18px; }
-      .grid { grid-template-columns: 1fr; }
-      .full { grid-column: auto; }
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>School Coaching Visit</h1>
-    <p>Jackfruit Foundation | SESLA</p>
-    <p>Record school visits, coaching feedback and agreed actions.</p>
-  </header>
-
-  <main>
-    <form id="visitForm">
-      <h2>School and Visit Details</h2>
-      <p class="note">Fields marked * are required.</p>
-
-      <div class="grid">
-        <div class="field">
-          <label for="visitDate">Visit date <span class="required">*</span></label>
-          <input id="visitDate" name="visitDate" type="date" required>
-        </div>
-
-        <div class="field">
-          <label for="schoolName">School name <span class="required">*</span></label>
-          <input id="schoolName" name="schoolName" required>
-        </div>
-
-        <div class="field">
-          <label for="county">County <span class="required">*</span></label>
-          <input id="county" name="county" required>
-        </div>
-
-        <div class="field">
-          <label for="subCounty">Sub-county</label>
-          <input id="subCounty" name="subCounty">
-        </div>
-
-        <div class="field">
-          <label for="coachName">Coach name <span class="required">*</span></label>
-          <input id="coachName" name="coachName" required>
-        </div>
-
-        <div class="field">
-          <label for="visitType">Visit type <span class="required">*</span></label>
-          <select id="visitType" name="visitType" required>
-            <option value="">Select visit type</option>
-            <option>Classroom observation</option>
-            <option>Teacher coaching</option>
-            <option>School leadership coaching</option>
-            <option>Follow-up visit</option>
-            <option>Other</option>
-          </select>
-        </div>
-
-        <div class="field full">
-          <label for="strengths">Strengths observed</label>
-          <textarea id="strengths" name="strengths"
-            placeholder="What went well during the visit?"></textarea>
-        </div>
-
-        <div class="field full">
-          <label for="improvements">Areas for improvement</label>
-          <textarea id="improvements" name="improvements"
-            placeholder="What needs further support?"></textarea>
-        </div>
-
-        <div class="field full">
-          <label for="recommendations">Coaching recommendations</label>
-          <textarea id="recommendations" name="recommendations"
-            placeholder="Record agreed recommendations and next steps."></textarea>
-        </div>
-
-        <div class="field">
-          <label for="followUpDate">Follow-up date</label>
-          <input id="followUpDate" name="followUpDate" type="date">
-        </div>
-
-        <div class="field">
-          <label for="status">Action plan status</label>
-          <select id="status" name="status">
-            <option>Open</option>
-            <option>In progress</option>
-            <option>Completed</option>
-          </select>
-        </div>
-      </div>
-
-      <button id="submitButton" type="submit">Submit Visit</button>
-      <div id="message" role="status" aria-live="polite"></div>
-    </form>
-
-    <section class="saved-panel">
-      <h2>About your records</h2>
-      <p class="note">
-        Visit submissions will be sent to the connected Google Sheet.
-        After submitting, check the spreadsheet to confirm the record arrived.
-      </p>
-    </section>
-  </main>
-
-  <script>
-    // Add your deployed Google Apps Script web app URL here.
-    const SCRIPT_URL = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE";
-
-    const form = document.getElementById("visitForm");
-    const button = document.getElementById("submitButton");
-    const message = document.getElementById("message");
-
-    document.getElementById("visitDate").value =
-      new Date().toLocaleDateString("en-CA");
-
-    form.addEventListener("submit", async function (event) {
-      event.preventDefault();
-
-      if (!form.reportValidity()) return;
-
-      if (!SCRIPT_URL.startsWith("https://script.google.com/")) {
-        message.textContent =
-          "The form is ready, but the Google Sheets connection has not been configured yet.";
-        return;
+    var row = headers.map(function (header) {
+      if (!header) return '';
+      if (header === 'submittedAt' && !params.hasOwnProperty('submittedAt')) {
+        return new Date();
       }
-
-      button.disabled = true;
-      message.textContent = "Sending visit details...";
-
-      try {
-        const data = new URLSearchParams();
-        new FormData(form).forEach((value, key) => {
-          data.append(key, value);
-        });
-
-        await fetch(SCRIPT_URL, {
-          method: "POST",
-          body: data,
-          mode: "no-cors"
-        });
-
-        message.textContent =
-          "Submission sent. Please check your Google Sheet to confirm it was saved.";
-        form.reset();
-        document.getElementById("visitDate").value =
-          new Date().toLocaleDateString("en-CA");
-      } catch (error) {
-        message.textContent =
-          "Unable to send the form. Check your internet connection and try again.";
-      } finally {
-        button.disabled = false;
-      }
+      return params.hasOwnProperty(header) ? params[header] : '';
     });
-  </script>
-</body>
-</html>
+
+    sheet.appendRow(row);
+
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: 'ok' }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: 'error', message: String(err) }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+// Lets you open the /exec URL in a browser to confirm the deployment is live.
+function doGet(e) {
+  return ContentService
+    .createTextOutput('School Coaching Visit intake is running.')
+    .setMimeType(ContentService.MimeType.TEXT);
+}
