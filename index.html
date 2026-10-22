@@ -153,7 +153,7 @@
   button:disabled { opacity: .6; cursor: wait; }
 
   .note { color: #58665d; font-size: 14px; line-height: 1.5; }
-  #message { margin-top: 16px; font-weight: bold; }
+  #message { margin-top: 16px; font-weight: bold; } #message.success { color: #193F44; background: #eaf6f3; border: 1px solid #4EACB5; padding: 10px 14px; border-radius: 8px; }
   .error-text { color: #b42318; font-size: 0.85em; margin-top: 6px; display: none; }
   .field.has-error input, .field.has-error textarea, .field.has-error select { border-color: #b42318; }
   .field.has-error .error-text { display: block; }
@@ -749,7 +749,7 @@ document.getElementById('discardDraftBtn').addEventListener('click', function(){
 
 /* ---------- Submission ---------- */
 // Paste your deployed Google Apps Script web app URL below.
-var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzx3hlGjhHsyUL-aFooFvcT6BAo6IZ884LPwNdY7WDAPqIeEa_1l7daN9zlthJgHPs/exec";
+var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzx3hlGjhHsyUL-aFooFvcT6BAo6IZ884LPwNdY7WDAPqIeEa_1l7daN9zlthJgHPs/exec"; function formatEAT(date){ var utcMs = date.getTime() + (date.getTimezoneOffset() * 60000); var eat = new Date(utcMs + 3 * 60 * 60000); function pad(n){ return n < 10 ? '0' + n : '' + n; } return eat.getFullYear() + '-' + pad(eat.getMonth() + 1) + '-' + pad(eat.getDate()) + ' ' + pad(eat.getHours()) + ':' + pad(eat.getMinutes()) + ':' + pad(eat.getSeconds()) + ' EAT'; }
 
 document.getElementById('visitForm').addEventListener('submit', async function(event){
   event.preventDefault();
@@ -764,11 +764,11 @@ document.getElementById('visitForm').addEventListener('submit', async function(e
   }
 
   button.disabled = true;
-  message.textContent = 'Sending visit details...';
+  message.classList.remove('success'); message.textContent = 'Sending visit details...';
 
   try {
     var payload = new URLSearchParams();
-    payload.append('submittedAt', new Date().toISOString());
+    payload.append('submittedAt', formatEAT(new Date()));
     Object.keys(data).forEach(function(k){
       var v = data[k];
       if (Array.isArray(v)) v = v.join('; ');
@@ -777,7 +777,7 @@ document.getElementById('visitForm').addEventListener('submit', async function(e
 
     await fetch(SCRIPT_URL, { method:'POST', body: payload, mode:'no-cors' });
 
-    message.textContent = 'Submission sent. Please check your Google Sheet to confirm it was saved.';
+    message.textContent = 'Submission successful. Thank you - this visit has been saved.'; message.classList.add('success');
     clearDraft();
     data = {};
     current = 0;
